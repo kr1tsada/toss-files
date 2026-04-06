@@ -14,6 +14,10 @@ export async function listFiles(
   return invoke("list_files", { deviceId, path });
 }
 
+export async function listLocalFiles(path: string): Promise<FileEntry[]> {
+  return invoke("list_local_files", { path });
+}
+
 export async function deleteFiles(
   deviceId: string,
   path: string,

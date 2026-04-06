@@ -13,6 +13,7 @@
     "withGlobalTauri": false,
     "windows": [
       {
+        "label": "main",
         "title": "Toss",
         "width": 900,
         "height": 600,

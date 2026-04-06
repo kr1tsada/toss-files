@@ -1,6 +1,6 @@
 # Phase 3: Frontend UI
 
-**Status**: pending
+**Status**: in-progress
 **Depends on**: Phase 2
 **Estimated**: Day 3-4
 

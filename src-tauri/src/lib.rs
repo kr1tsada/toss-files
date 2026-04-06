@@ -19,6 +19,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::device_cmd::list_devices,
             commands::file_cmd::list_files,
+            commands::file_cmd::list_local_files,
             commands::file_cmd::delete_files,
             commands::file_cmd::create_folder,
             commands::transfer_cmd::pull_files,
