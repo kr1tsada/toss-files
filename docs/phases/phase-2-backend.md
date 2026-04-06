@@ -1,6 +1,6 @@
 # Phase 2: Core Backend (Rust + ADB)
 
-**Status**: pending
+**Status**: done
 **Depends on**: Phase 1
 **Estimated**: Day 2-3
 
