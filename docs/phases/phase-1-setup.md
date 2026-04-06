@@ -1,6 +1,6 @@
 # Phase 1: Project Setup
 
-**Status**: pending
+**Status**: done
 **Estimated**: Day 1
 
 ## Goal

@@ -2,6 +2,8 @@
 
 ## Project Overview
 
+**project-id**: `toss`
+
 **Toss** — Desktop app สำหรับ transfer file ระหว่าง Android กับ macOS ผ่าน USB (ADB)
 Built with Tauri v2 (Rust) + React 19 + TypeScript + Tailwind CSS v4
 
