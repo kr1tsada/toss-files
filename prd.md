@@ -151,27 +151,64 @@ fn create_folder(device_id: &str, path: &str) -> Result<()>
 mob-file-transfer/
 ├── src-tauri/
 │   ├── src/
-│   │   ├── main.rs
-│   │   ├── adb.rs          # ADB wrapper
-│   │   ├── device.rs       # Device detection
-│   │   ├── transfer.rs     # File transfer logic
-│   │   └── commands.rs     # Tauri commands
+│   │   ├── main.rs                  # App entry — setup + run
+│   │   ├── error.rs                 # AppError enum (thiserror)
+│   │   ├── adb/
+│   │   │   ├── mod.rs
+│   │   │   ├── client.rs            # Adb struct — execute commands
+│   │   │   ├── parser.rs            # Parse adb output
+│   │   │   └── client_test.rs       # Unit tests
+│   │   ├── device/
+│   │   │   ├── mod.rs
+│   │   │   ├── manager.rs           # DeviceManager — poll, detect
+│   │   │   ├── types.rs             # Device, DeviceState
+│   │   │   └── manager_test.rs
+│   │   ├── transfer/
+│   │   │   ├── mod.rs
+│   │   │   ├── service.rs           # pull, push, delete, mkdir
+│   │   │   ├── queue.rs             # TransferQueue — batch, cancel
+│   │   │   ├── types.rs             # TransferProgress, TransferResult
+│   │   │   └── service_test.rs
+│   │   └── commands/
+│   │       ├── mod.rs
+│   │       ├── device_cmd.rs        # list_devices
+│   │       ├── file_cmd.rs          # list_files, delete, mkdir
+│   │       └── transfer_cmd.rs      # pull, push
 │   ├── Cargo.toml
 │   └── tauri.conf.json
 ├── src/
+│   ├── main.tsx
 │   ├── App.tsx
+│   ├── constants.ts                 # Default paths, config
 │   ├── components/
-│   │   ├── DeviceStatus.tsx
-│   │   ├── FilePanel.tsx    # Reusable file browser panel
-│   │   ├── TransferBar.tsx  # Progress indicator
-│   │   └── Toolbar.tsx
+│   │   ├── device/
+│   │   │   ├── DeviceStatus.tsx
+│   │   │   └── DeviceGuide.tsx
+│   │   ├── file-browser/
+│   │   │   ├── FilePanel.tsx
+│   │   │   ├── FileRow.tsx
+│   │   │   ├── Breadcrumb.tsx
+│   │   │   └── EmptyState.tsx
+│   │   ├── transfer/
+│   │   │   ├── TransferBar.tsx
+│   │   │   └── TransferQueue.tsx
+│   │   └── ui/
+│   │       ├── Toolbar.tsx
+│   │       ├── ConfirmDialog.tsx
+│   │       └── Toast.tsx
 │   ├── hooks/
 │   │   ├── useDevice.ts
 │   │   ├── useFileSystem.ts
-│   │   └── useTransfer.ts
-│   └── lib/
-│       ├── adb.ts           # Tauri command bindings
-│       └── types.ts
+│   │   ├── useTransfer.ts
+│   │   └── useKeyboardShortcuts.ts
+│   ├── lib/
+│   │   ├── commands.ts              # All invoke() bindings
+│   │   ├── events.ts                # All listen() bindings
+│   │   └── fileUtils.ts             # Format size, icon mapping
+│   └── types/
+│       ├── device.ts
+│       ├── file.ts
+│       └── transfer.ts
 ├── package.json
 └── README.md
 ```
