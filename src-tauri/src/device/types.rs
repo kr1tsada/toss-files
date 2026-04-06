@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum DeviceState {
     Connected,
     Unauthorized,
@@ -10,6 +10,7 @@ pub enum DeviceState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Device {
     pub id: String,
-    pub model: Option<String>,
+    pub model: String,
+    pub product: String,
     pub state: DeviceState,
 }

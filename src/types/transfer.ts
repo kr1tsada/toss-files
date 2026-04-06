@@ -1,12 +1,13 @@
 export interface TransferProgress {
-  fileName: string;
-  bytesTransferred: number;
-  totalBytes: number;
+  file_name: string;
+  bytes_transferred: number;
+  total_bytes: number;
   percentage: number;
+  speed_bps: number;
 }
 
 export interface TransferResult {
-  fileName: string;
+  file_name: string;
   success: boolean;
   error: string | null;
 }

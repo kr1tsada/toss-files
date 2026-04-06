@@ -1,9 +1,9 @@
 export interface FileEntry {
   name: string;
-  path: string;
-  isDir: boolean;
+  is_dir: boolean;
   size: number;
-  modified: string | null;
+  modified: string;
+  permissions: string;
 }
 
 export type FileSource = "android" | "macos";

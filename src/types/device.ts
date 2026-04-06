@@ -1,7 +1,8 @@
-export type DeviceState = "connected" | "unauthorized" | "offline";
+export type DeviceState = "Connected" | "Unauthorized" | "Offline";
 
 export interface Device {
   id: string;
-  model: string | null;
+  model: string;
+  product: string;
   state: DeviceState;
 }
