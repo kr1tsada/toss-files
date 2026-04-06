@@ -1,0 +1,26 @@
+[package]
+name = "toss"
+version = "0.1.0"
+description = "File transfer between Android and macOS via USB (ADB)"
+authors = []
+edition = "2021"
+
+[lib]
+name = "toss_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+path = "src/lib.rs"
+
+[[bin]]
+name = "toss"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.5.6", features = [] }
+
+[dependencies]
+tauri = { version = "2.10.3", features = [] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+tokio = { version = "1.51.0", features = ["full"] }
+thiserror = "2.0.18"
+tracing = "0.1.44"
