@@ -9,6 +9,19 @@ export function formatSpeed(bytesPerSec: number): string {
   return `${formatFileSize(bytesPerSec)}/s`;
 }
 
+export function formatDate(modified: string): string {
+  // Android: "2024-01-15 10:30", macOS: unix timestamp string
+  const ts = Number(modified);
+  const date = Number.isNaN(ts) ? new Date(modified) : new Date(ts * 1000);
+  if (Number.isNaN(date.getTime())) return modified;
+  const now = new Date();
+  const sameYear = date.getFullYear() === now.getFullYear();
+  const month = date.toLocaleString("en", { month: "short" });
+  const day = date.getDate();
+  const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  return sameYear ? `${month} ${day}, ${time}` : `${month} ${day}, ${date.getFullYear()}`;
+}
+
 export function getFileExtension(name: string): string {
   const dot = name.lastIndexOf(".");
   return dot === -1 ? "" : name.slice(dot + 1).toLowerCase();

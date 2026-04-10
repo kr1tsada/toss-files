@@ -9,7 +9,7 @@ import {
   File,
 } from "lucide-react";
 import type { FileEntry } from "../../types/file";
-import { formatFileSize, getFileIcon } from "../../lib/fileUtils";
+import { formatFileSize, formatDate, getFileIcon } from "../../lib/fileUtils";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
   folder: Folder,
@@ -57,10 +57,15 @@ export function FileRow({
         className={file.is_dir ? "shrink-0 text-blue-400" : "shrink-0 text-neutral-500"}
       />
       <span className="min-w-0 flex-1 truncate">{file.name}</span>
-      {!file.is_dir && (
-        <span className="shrink-0 text-xs text-neutral-600">
+      <span className="w-28 shrink-0 text-right text-xs text-neutral-600">
+        {formatDate(file.modified)}
+      </span>
+      {!file.is_dir ? (
+        <span className="w-16 shrink-0 text-right text-xs text-neutral-600">
           {formatFileSize(file.size)}
         </span>
+      ) : (
+        <span className="w-16 shrink-0" />
       )}
     </div>
   );

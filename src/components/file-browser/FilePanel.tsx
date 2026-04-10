@@ -151,6 +151,9 @@ export function FilePanel({
         <button className="flex-1 text-left hover:text-neutral-400" onClick={() => onSort("name")}>
           Name{sortArrow("name")}
         </button>
+        <button className="w-28 text-right hover:text-neutral-400" onClick={() => onSort("modified")}>
+          Modified{sortArrow("modified")}
+        </button>
         <button className="w-16 text-right hover:text-neutral-400" onClick={() => onSort("size")}>
           Size{sortArrow("size")}
         </button>
