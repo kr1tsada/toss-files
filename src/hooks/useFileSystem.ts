@@ -117,7 +117,12 @@ export function useFileSystem(source: FileSource, deviceId: string | null) {
     const mul = sortDir === "asc" ? 1 : -1;
     if (sortKey === "name") return a.name.localeCompare(b.name) * mul;
     if (sortKey === "size") return (a.size - b.size) * mul;
-    return (Number(a.modified) - Number(b.modified)) * mul;
+    // modified: unix timestamp string (macOS) or "YYYY-MM-DD HH:MM" (Android)
+    const toTime = (m: string) => {
+      const n = Number(m);
+      return Number.isNaN(n) ? new Date(m).getTime() : n * 1000;
+    };
+    return (toTime(a.modified) - toTime(b.modified)) * mul;
   });
 
   const setSort = useCallback(
