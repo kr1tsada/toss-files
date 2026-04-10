@@ -1,6 +1,6 @@
 # Phase 3: Frontend UI
 
-**Status**: in-progress
+**Status**: done
 **Depends on**: Phase 2
 **Estimated**: Day 3-4
 
@@ -11,59 +11,59 @@
 ## Tasks
 
 ### 3.1 Types & Bindings
-- [ ] `types/device.ts` — Device, DeviceState
-- [ ] `types/file.ts` — FileEntry
-- [ ] `types/transfer.ts` — TransferProgress, TransferResult
-- [ ] `lib/commands.ts` — invoke() bindings สำหรับทุก Tauri command
-- [ ] `lib/events.ts` — listen() bindings สำหรับ progress + device events
-- [ ] `lib/fileUtils.ts` — formatFileSize(), getFileIcon(), isImageFile(), etc.
-- [ ] `constants.ts` — DEFAULT_ANDROID_PATH, DEFAULT_MAC_PATH, etc.
+- [x] `types/device.ts` — Device, DeviceState
+- [x] `types/file.ts` — FileEntry
+- [x] `types/transfer.ts` — TransferProgress, TransferResult
+- [x] `lib/commands.ts` — invoke() bindings สำหรับทุก Tauri command
+- [x] `lib/events.ts` — listen() bindings สำหรับ progress + device events
+- [x] `lib/fileUtils.ts` — formatFileSize(), getFileIcon(), isImageFile(), etc.
+- [x] `constants.ts` — DEFAULT_ANDROID_PATH, DEFAULT_MAC_PATH, etc.
 
 ### 3.2 Device Components (`components/device/`)
-- [ ] `DeviceStatus.tsx` — แสดงชื่อ device + connection status
+- [x] `DeviceStatus.tsx` — แสดงชื่อ device + connection status
   - สถานะ: connected (green), disconnected (gray), unauthorized (yellow)
   - Refresh button
-- [ ] `DeviceGuide.tsx` — step-by-step guide เปิด USB debugging
+- [x] `DeviceGuide.tsx` — step-by-step guide เปิด USB debugging
   - แสดงเมื่อไม่มี device หรือ unauthorized
 
 ### 3.3 File Browser (`components/file-browser/`)
-- [ ] `FilePanel.tsx` — reusable panel ใช้ได้ทั้ง Android + macOS side
+- [x] `FilePanel.tsx` — reusable panel ใช้ได้ทั้ง Android + macOS side
   - Sort by name/size/date
   - Multi-select (Cmd+click, Shift+click)
   - Virtualized list ด้วย `@tanstack/virtual`
-- [ ] `FileRow.tsx` — single file/folder row พร้อม icon ตาม type
+- [x] `FileRow.tsx` — single file/folder row พร้อม icon ตาม type
   - Double-click folder → navigate
   - Drag source สำหรับ drag & drop
-- [ ] `Breadcrumb.tsx` — clickable path segments navigation
-- [ ] `EmptyState.tsx` — แสดงเมื่อ folder ว่างหรือไม่มี device
+- [x] `Breadcrumb.tsx` — clickable path segments navigation
+- [x] `EmptyState.tsx` — แสดงเมื่อ folder ว่างหรือไม่มี device
 
 ### 3.4 Transfer Components (`components/transfer/`)
-- [ ] `TransferBar.tsx` — progress bar: file name + % + speed (MB/s)
+- [x] `TransferBar.tsx` — progress bar: file name + % + speed (MB/s)
   - Cancel button
-- [ ] `TransferQueue.tsx` — batch transfer list (pending, active, done)
+- [x] `TransferQueue.tsx` — batch transfer list (pending, active, done)
 
 ### 3.5 Shared UI (`components/ui/`)
-- [ ] `Toolbar.tsx` — Pull, Push, Delete, New folder, Refresh
-- [ ] `ConfirmDialog.tsx` — reusable confirm dialog (delete, overwrite)
-- [ ] `Toast.tsx` — success/error notifications
+- [x] `Toolbar.tsx` — Pull, Push, Delete, New folder, Refresh
+- [x] `ConfirmDialog.tsx` — reusable confirm dialog (delete, overwrite)
+- [x] `Toast.tsx` — success/error notifications
 
 ### 3.6 Hooks
-- [ ] `useDevice.ts` — device list, polling, connection state
-- [ ] `useFileSystem.ts` — file listing, navigation, selection state
-- [ ] `useTransfer.ts` — pull/push/delete, progress, queue
-- [ ] `useKeyboardShortcuts.ts` — Cmd+C/V, Delete, Cmd+A, arrows
+- [x] `useDevice.ts` — device list, polling, connection state
+- [x] `useFileSystem.ts` — file listing, navigation, selection state
+- [x] `useTransfer.ts` — pull/push/delete, progress, queue
+- [x] `useKeyboardShortcuts.ts` — Cmd+C/V, Delete, Cmd+A, arrows
 
 ### 3.7 Drag & Drop
-- [ ] Drag file จาก Android panel → macOS panel (pull)
-- [ ] Drag file จาก macOS panel → Android panel (push)
-- [ ] Visual feedback: drop zone highlight
-- [ ] Support drag หลาย files พร้อมกัน
+- [x] Drag file จาก Android panel → macOS panel (pull)
+- [x] Drag file จาก macOS panel → Android panel (push)
+- [x] Visual feedback: drop zone highlight
+- [x] Support drag หลาย files พร้อมกัน
 
 ### 3.8 Layout (`App.tsx`)
-- [ ] 2-panel layout: Android (left) | macOS (right)
-- [ ] Resizable panel divider
-- [ ] Device status bar (top)
-- [ ] Transfer bar (bottom)
+- [x] 2-panel layout: Android (left) | macOS (right)
+- [x] Resizable panel divider
+- [x] Device status bar (top)
+- [x] Transfer bar (bottom)
 
 ## Acceptance Criteria
 
