@@ -47,3 +47,7 @@ export async function pushFiles(
 ): Promise<TransferResult> {
   return invoke("push_files", { deviceId, localPath, remotePath });
 }
+
+export async function cancelTransfer(): Promise<void> {
+  return invoke("cancel_transfer");
+}

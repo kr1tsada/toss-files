@@ -1,5 +1,6 @@
 use std::path::PathBuf;
-use tokio::process::Command;
+use std::process::Stdio;
+use tokio::process::{Child, Command};
 use tracing::{debug, error};
 
 use crate::error::AppError;
@@ -46,6 +47,25 @@ impl AdbClient {
         let mut full_args = vec!["-s", device_id];
         full_args.extend_from_slice(args);
         self.execute(&full_args).await
+    }
+
+    /// Spawn an ADB command targeting a device, returning the Child process.
+    /// stderr is piped for progress reading; stdout is piped for output capture.
+    pub fn spawn_for_device(
+        &self,
+        device_id: &str,
+        args: &[&str],
+    ) -> Result<Child, AppError> {
+        let mut full_args = vec!["-s".to_string(), device_id.to_string()];
+        full_args.extend(args.iter().map(|s| s.to_string()));
+        debug!("adb (spawn) {}", full_args.join(" "));
+
+        Command::new(&self.adb_path)
+            .args(&full_args)
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| AppError::Adb(format!("Failed to spawn adb: {e}")))
     }
 
     /// Detect ADB binary path: bundled first, then system PATH

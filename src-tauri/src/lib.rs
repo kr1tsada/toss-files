@@ -24,6 +24,7 @@ pub fn run() {
             commands::file_cmd::create_folder,
             commands::transfer_cmd::pull_files,
             commands::transfer_cmd::push_files,
+            commands::transfer_cmd::cancel_transfer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

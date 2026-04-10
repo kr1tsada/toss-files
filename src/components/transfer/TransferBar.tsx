@@ -1,11 +1,13 @@
+import { X } from "lucide-react";
 import type { TransferItem } from "../../hooks/useTransfer";
 import { formatFileSize, formatSpeed } from "../../lib/fileUtils";
 
 interface TransferBarProps {
   activeTransfer: TransferItem | null;
+  onCancel?: () => void;
 }
 
-export function TransferBar({ activeTransfer }: TransferBarProps) {
+export function TransferBar({ activeTransfer, onCancel }: TransferBarProps) {
   if (!activeTransfer) return null;
 
   const progress = activeTransfer.progress;
@@ -24,14 +26,25 @@ export function TransferBar({ activeTransfer }: TransferBarProps) {
             <span className="shrink-0 text-neutral-400">
               {formatFileSize(progress.bytes_transferred)} / {formatFileSize(progress.total_bytes)}
             </span>
-            <span className="shrink-0 text-neutral-500">
-              {formatSpeed(progress.speed_bps)}
-            </span>
+            {progress.speed_bps > 0 && (
+              <span className="shrink-0 text-neutral-500">
+                {formatSpeed(progress.speed_bps)}
+              </span>
+            )}
           </>
         )}
         <span className="shrink-0 font-medium text-blue-400">
           {Math.round(percentage)}%
         </span>
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="shrink-0 rounded p-0.5 text-neutral-500 hover:bg-neutral-800 hover:text-red-400"
+            title="Cancel transfer"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
       <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-neutral-800">
         <div

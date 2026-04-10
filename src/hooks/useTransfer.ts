@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import type { TransferProgress, TransferResult } from "../types/transfer";
-import { pullFiles, pushFiles } from "../lib/commands";
+import { pullFiles, pushFiles, cancelTransfer } from "../lib/commands";
 import { onTransferProgress } from "../lib/events";
 
 interface TransferItem {
@@ -110,6 +110,14 @@ export function useTransfer() {
     [],
   );
 
+  const cancel = useCallback(async () => {
+    await cancelTransfer();
+    setActiveTransfer((prev) =>
+      prev ? { ...prev, status: "error", result: { file_name: prev.fileName, success: false, error: "Cancelled" } } : null,
+    );
+    setIsTransferring(false);
+  }, []);
+
   const clearQueue = useCallback(() => {
     setQueue((q) => q.filter((i) => i.status === "active" || i.status === "pending"));
   }, []);
@@ -120,6 +128,7 @@ export function useTransfer() {
     isTransferring,
     pull,
     push,
+    cancel,
     clearQueue,
   };
 }

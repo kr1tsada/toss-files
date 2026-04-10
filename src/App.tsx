@@ -289,7 +289,7 @@ export function App() {
       </div>
 
       {/* Transfer bar */}
-      <TransferBar activeTransfer={transfer.activeTransfer} />
+      <TransferBar activeTransfer={transfer.activeTransfer} onCancel={transfer.cancel} />
 
       {/* Transfer queue */}
       <TransferQueue queue={transfer.queue} onClear={transfer.clearQueue} />
