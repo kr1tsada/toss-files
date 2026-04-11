@@ -1,5 +1,6 @@
 use tauri::{AppHandle, State};
 
+use crate::commands::path_util::expand_local_path;
 use crate::error::AppError;
 use crate::transfer::service::TransferService;
 use crate::transfer::types::TransferResult;
@@ -12,8 +13,9 @@ pub async fn pull_files(
     remote_path: String,
     local_path: String,
 ) -> Result<TransferResult, String> {
+    let local = expand_local_path(&local_path);
     service
-        .pull_file(&device_id, &remote_path, &local_path, &app)
+        .pull_file(&device_id, &remote_path, &local, &app)
         .await
         .map_err(AppError::into)
 }
@@ -26,8 +28,9 @@ pub async fn push_files(
     local_path: String,
     remote_path: String,
 ) -> Result<TransferResult, String> {
+    let local = expand_local_path(&local_path);
     service
-        .push_file(&device_id, &local_path, &remote_path, &app)
+        .push_file(&device_id, &local, &remote_path, &app)
         .await
         .map_err(AppError::into)
 }

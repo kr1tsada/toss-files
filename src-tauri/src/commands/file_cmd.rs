@@ -5,6 +5,7 @@ use std::time::UNIX_EPOCH;
 
 use tauri::State;
 
+use crate::commands::path_util::expand_local_path;
 use crate::error::AppError;
 use crate::transfer::service::TransferService;
 use crate::transfer::types::FileEntry;
@@ -23,13 +24,7 @@ pub async fn list_files(
 
 #[tauri::command]
 pub async fn list_local_files(path: String) -> Result<Vec<FileEntry>, String> {
-    let resolved = if path.starts_with("~/") {
-        dirs::home_dir()
-            .unwrap_or_default()
-            .join(&path[2..])
-    } else {
-        PathBuf::from(&path)
-    };
+    let resolved = PathBuf::from(expand_local_path(&path));
 
     let entries = fs::read_dir(&resolved).map_err(|e| e.to_string())?;
     let mut files: Vec<FileEntry> = Vec::new();
