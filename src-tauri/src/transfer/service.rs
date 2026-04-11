@@ -8,7 +8,7 @@ use crate::adb::client::AdbClient;
 use crate::adb::parser;
 use crate::error::AppError;
 
-use super::types::{FileEntry, TransferProgress, TransferResult};
+use super::types::{classify_error, ErrorKind, FileEntry, TransferProgress, TransferResult};
 
 /// Transfer service — file operations via ADB
 pub struct TransferService {
@@ -159,6 +159,7 @@ impl TransferService {
                     file_name: file_name.to_string(),
                     success: false,
                     error: Some("Transfer cancelled".into()),
+                    error_kind: Some(ErrorKind::Cancelled),
                 });
             }
         };
@@ -168,9 +169,11 @@ impl TransferService {
                 file_name: file_name.to_string(),
                 success: true,
                 error: None,
+                error_kind: None,
             }),
             Some(_) => {
                 error!("transfer failed: {last_stderr}");
+                let kind = classify_error(&last_stderr);
                 Ok(TransferResult {
                     file_name: file_name.to_string(),
                     success: false,
@@ -179,12 +182,14 @@ impl TransferService {
                     } else {
                         last_stderr
                     }),
+                    error_kind: Some(kind),
                 })
             }
             None => Ok(TransferResult {
                 file_name: file_name.to_string(),
                 success: false,
                 error: Some("Transfer process exited unexpectedly".into()),
+                error_kind: Some(ErrorKind::Unknown),
             }),
         }
     }

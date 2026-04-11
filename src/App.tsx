@@ -14,6 +14,7 @@ import { ConfirmDialog } from "./components/ui/ConfirmDialog";
 import { Toast } from "./components/ui/Toast";
 import { deleteFiles, createFolder } from "./lib/commands";
 import { joinAndroidPath } from "./lib/fileUtils";
+import { humanizeError } from "./types/transfer";
 import { APP_NAME } from "./constants";
 
 export function App() {
@@ -29,11 +30,14 @@ export function App() {
   const [confirmDialog, setConfirmDialog] = useState<{
     title: string;
     message: string;
+    destructive?: boolean;
+    confirmLabel?: string;
     onConfirm: () => void;
   } | null>(null);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "info";
+    action?: { label: string; onClick: () => void };
   } | null>(null);
 
   // Drag state
@@ -55,14 +59,57 @@ export function App() {
   }, []);
 
   const showToast = useCallback(
-    (message: string, type: "success" | "error" | "info" = "info") => {
-      setToast({ message, type });
-      setTimeout(() => setToast(null), 3000);
+    (
+      message: string,
+      type: "success" | "error" | "info" = "info",
+      action?: { label: string; onClick: () => void },
+    ) => {
+      setToast({ message, type, action });
     },
     [],
   );
 
+  const dismissToast = useCallback(() => setToast(null), []);
+
+  // Detect device disconnect mid-transfer
+  const wasConnectedRef = useRef(isConnected);
+  useEffect(() => {
+    if (wasConnectedRef.current && !isConnected && transfer.isTransferring) {
+      showToast("Device disconnected during transfer", "error");
+      transfer.cancel();
+    }
+    wasConnectedRef.current = isConnected;
+  }, [isConnected, transfer, showToast]);
+
   const activeFs = activePanel === "android" ? android : macos;
+
+  const reportTransferResults = useCallback(
+    (direction: "pull" | "push", results: { success: boolean; error_kind: string | null; error: string | null }[]) => {
+      const failed = results.filter((r) => !r.success);
+      if (failed.length === 0) {
+        showToast(
+          `${direction === "pull" ? "Pulled" : "Pushed"} ${results.length} file(s)`,
+          "success",
+        );
+        return;
+      }
+      const firstKind = (failed[0].error_kind ?? null) as
+        | null
+        | "device_offline"
+        | "unauthorized"
+        | "permission_denied"
+        | "file_not_found"
+        | "no_space"
+        | "cancelled"
+        | "unknown";
+      const msg =
+        failed.length === 1
+          ? humanizeError(firstKind, failed[0].error)
+          : `${failed.length} file(s) failed — ${humanizeError(firstKind, failed[0].error)}`;
+      showToast(msg, "error");
+    },
+    [showToast],
+  );
 
   // Toolbar handlers
   const handlePull = useCallback(async () => {
@@ -73,13 +120,8 @@ export function App() {
     const results = await transfer.pull(deviceId, paths, macos.currentPath, () => {
       macos.fetchFiles(macos.currentPath);
     });
-    const failed = results.filter((r) => !r.success);
-    if (failed.length === 0) {
-      showToast(`Pulled ${results.length} file(s)`, "success");
-    } else {
-      showToast(`${failed.length} file(s) failed to pull`, "error");
-    }
-  }, [deviceId, android, macos, transfer, showToast]);
+    reportTransferResults("pull", results);
+  }, [deviceId, android, macos, transfer, reportTransferResults]);
 
   const handlePush = useCallback(async () => {
     if (!deviceId || macos.selectedFiles.length === 0) return;
@@ -89,13 +131,18 @@ export function App() {
     const results = await transfer.push(deviceId, paths, android.currentPath, () => {
       android.fetchFiles(android.currentPath);
     });
-    const failed = results.filter((r) => !r.success);
-    if (failed.length === 0) {
-      showToast(`Pushed ${results.length} file(s)`, "success");
-    } else {
-      showToast(`${failed.length} file(s) failed to push`, "error");
-    }
-  }, [deviceId, android, macos, transfer, showToast]);
+    reportTransferResults("push", results);
+  }, [deviceId, android, macos, transfer, reportTransferResults]);
+
+  const handleRetry = useCallback(
+    (itemId: string) => {
+      transfer.retry(itemId, () => {
+        android.fetchFiles(android.currentPath);
+        macos.fetchFiles(macos.currentPath);
+      });
+    },
+    [transfer, android, macos],
+  );
 
   const handleDelete = useCallback(() => {
     if (activeFs.selectedFiles.length === 0) return;
@@ -103,15 +150,31 @@ export function App() {
     setConfirmDialog({
       title: "Delete files",
       message: `Delete ${names.length} item(s)?\n${names.slice(0, 5).join(", ")}${names.length > 5 ? "..." : ""}`,
+      destructive: true,
+      confirmLabel: "Delete",
       onConfirm: async () => {
         setConfirmDialog(null);
-        if (activePanel === "android" && deviceId) {
-          for (const file of activeFs.selectedFiles) {
-            await deleteFiles(deviceId, joinAndroidPath(android.currentPath, file.name));
-          }
-          android.fetchFiles(android.currentPath);
+        if (activePanel !== "android" || !deviceId) {
+          showToast("Delete is only supported on Android side", "info");
+          return;
         }
-        showToast(`Deleted ${names.length} item(s)`, "success");
+        const failed: string[] = [];
+        for (const file of activeFs.selectedFiles) {
+          try {
+            await deleteFiles(deviceId, joinAndroidPath(android.currentPath, file.name));
+          } catch (e) {
+            failed.push(`${file.name}: ${String(e)}`);
+          }
+        }
+        android.fetchFiles(android.currentPath);
+        if (failed.length === 0) {
+          showToast(`Deleted ${names.length} item(s)`, "success");
+        } else {
+          showToast(
+            `${failed.length}/${names.length} failed to delete`,
+            "error",
+          );
+        }
       },
     });
   }, [activeFs, activePanel, deviceId, android, showToast]);
@@ -119,10 +182,14 @@ export function App() {
   const handleNewFolder = useCallback(() => {
     const name = prompt("Folder name:");
     if (!name || !deviceId) return;
-    createFolder(deviceId, joinAndroidPath(android.currentPath, name)).then(() => {
-      android.fetchFiles(android.currentPath);
-      showToast(`Created folder: ${name}`, "success");
-    });
+    createFolder(deviceId, joinAndroidPath(android.currentPath, name))
+      .then(() => {
+        android.fetchFiles(android.currentPath);
+        showToast(`Created folder: ${name}`, "success");
+      })
+      .catch((e) => {
+        showToast(`Failed to create folder: ${String(e)}`, "error");
+      });
   }, [deviceId, android, showToast]);
 
   const handleRefresh = useCallback(() => {
@@ -250,7 +317,13 @@ export function App() {
               dragOver={false}
             />
           ) : (
-            <DeviceGuide />
+            <DeviceGuide
+              reason={
+                device.selectedDevice?.state === "Unauthorized"
+                  ? "unauthorized"
+                  : "no_device"
+              }
+            />
           )}
         </div>
 
@@ -292,7 +365,11 @@ export function App() {
       <TransferBar activeTransfer={transfer.activeTransfer} onCancel={transfer.cancel} />
 
       {/* Transfer queue */}
-      <TransferQueue queue={transfer.queue} onClear={transfer.clearQueue} />
+      <TransferQueue
+        queue={transfer.queue}
+        onClear={transfer.clearQueue}
+        onRetry={handleRetry}
+      />
 
       {/* Confirm dialog */}
       {confirmDialog && (
@@ -300,13 +377,22 @@ export function App() {
           open
           title={confirmDialog.title}
           message={confirmDialog.message}
+          destructive={confirmDialog.destructive}
+          confirmLabel={confirmDialog.confirmLabel}
           onConfirm={confirmDialog.onConfirm}
           onCancel={() => setConfirmDialog(null)}
         />
       )}
 
       {/* Toast */}
-      {toast && <Toast message={toast.message} type={toast.type} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          action={toast.action}
+          onClose={dismissToast}
+        />
+      )}
     </div>
   );
 }

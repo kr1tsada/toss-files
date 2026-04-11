@@ -1,9 +1,11 @@
-import { CheckCircle, XCircle, Loader2, Clock } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Clock, RotateCw } from "lucide-react";
 import type { TransferItem } from "../../hooks/useTransfer";
+import { humanizeError } from "../../types/transfer";
 
 interface TransferQueueProps {
   queue: TransferItem[];
   onClear: () => void;
+  onRetry?: (itemId: string) => void;
 }
 
 const statusIcon: Record<string, React.ReactNode> = {
@@ -13,7 +15,7 @@ const statusIcon: Record<string, React.ReactNode> = {
   error: <XCircle size={12} className="text-red-500" />,
 };
 
-export function TransferQueue({ queue, onClear }: TransferQueueProps) {
+export function TransferQueue({ queue, onClear, onRetry }: TransferQueueProps) {
   if (queue.length === 0) return null;
 
   const completed = queue.filter((i) => i.status === "done" || i.status === "error");
@@ -34,23 +36,46 @@ export function TransferQueue({ queue, onClear }: TransferQueueProps) {
         )}
       </div>
       <div className="max-h-32 overflow-auto">
-        {queue.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center gap-2 px-4 py-1 text-xs"
-          >
-            {statusIcon[item.status]}
-            <span className="text-neutral-500">
-              {item.direction === "pull" ? "←" : "→"}
-            </span>
-            <span className="min-w-0 flex-1 truncate text-neutral-400">
-              {item.fileName}
-            </span>
-            {item.result?.error && (
-              <span className="truncate text-red-400">{item.result.error}</span>
-            )}
-          </div>
-        ))}
+        {queue.map((item) => {
+          const isError = item.status === "error";
+          const errMsg = isError
+            ? humanizeError(item.result?.error_kind ?? null, item.result?.error)
+            : null;
+          const canRetry =
+            isError && item.result?.error_kind !== "cancelled" && !!onRetry;
+
+          return (
+            <div
+              key={item.id}
+              className="flex items-center gap-2 px-4 py-1 text-xs"
+            >
+              {statusIcon[item.status]}
+              <span className="text-neutral-500">
+                {item.direction === "pull" ? "←" : "→"}
+              </span>
+              <span className="min-w-0 flex-1 truncate text-neutral-400">
+                {item.fileName}
+              </span>
+              {errMsg && (
+                <span
+                  className="max-w-[14rem] truncate text-red-400"
+                  title={item.result?.error ?? undefined}
+                >
+                  {errMsg}
+                </span>
+              )}
+              {canRetry && (
+                <button
+                  onClick={() => onRetry?.(item.id)}
+                  className="shrink-0 rounded p-0.5 text-neutral-500 hover:bg-neutral-800 hover:text-blue-400"
+                  title="Retry"
+                >
+                  <RotateCw size={12} />
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
