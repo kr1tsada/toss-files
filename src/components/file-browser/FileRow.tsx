@@ -28,6 +28,7 @@ interface FileRowProps {
   onClick: (e: React.MouseEvent) => void;
   onDoubleClick: () => void;
   onDragStart: (e: React.DragEvent) => void;
+  onContextMenu: (e: React.MouseEvent) => void;
 }
 
 export function FileRow({
@@ -36,6 +37,7 @@ export function FileRow({
   onClick,
   onDoubleClick,
   onDragStart,
+  onContextMenu,
 }: FileRowProps) {
   const iconType = getFileIcon(file.name, file.is_dir);
   const Icon = iconMap[iconType] ?? File;
@@ -49,6 +51,7 @@ export function FileRow({
       }`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      onContextMenu={onContextMenu}
       draggable
       onDragStart={onDragStart}
     >

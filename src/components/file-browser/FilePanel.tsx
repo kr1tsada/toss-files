@@ -25,6 +25,11 @@ interface FilePanelProps {
   onDragStart: (files: FileEntry[], source: FileSource) => void;
   onDrop: (targetPath: string) => void;
   dragOver: boolean;
+  onContextMenu: (
+    e: React.MouseEvent,
+    source: FileSource,
+    target: FileEntry | null,
+  ) => void;
 }
 
 const ROW_HEIGHT = 30;
@@ -48,6 +53,7 @@ export function FilePanel({
   onDragStart,
   onDrop,
   dragOver,
+  onContextMenu,
 }: FilePanelProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [isDragTarget, setIsDragTarget] = useState(false);
@@ -128,6 +134,12 @@ export function FilePanel({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onContextMenu={(e) => {
+        // Empty area / panel background → null target
+        if (e.target === e.currentTarget || (e.target as HTMLElement).closest("[data-row]") === null) {
+          onContextMenu(e, source, null);
+        }
+      }}
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-1.5">
@@ -178,6 +190,7 @@ export function FilePanel({
               return (
                 <div
                   key={file.name}
+                  data-row
                   style={{
                     position: "absolute",
                     top: 0,
@@ -193,6 +206,15 @@ export function FilePanel({
                     onClick={(e) => handleClick(file, e)}
                     onDoubleClick={() => handleDoubleClick(file)}
                     onDragStart={(e) => handleDragStart(file, e)}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // If file not already selected, select it
+                      if (!selected.has(file.name)) {
+                        onToggleSelect(file.name, false);
+                      }
+                      onContextMenu(e, source, file);
+                    }}
                   />
                 </div>
               );

@@ -12,6 +12,14 @@ import { TransferBar } from "./components/transfer/TransferBar";
 import { TransferQueue } from "./components/transfer/TransferQueue";
 import { ConfirmDialog } from "./components/ui/ConfirmDialog";
 import { Toast } from "./components/ui/Toast";
+import { ContextMenu, type ContextMenuEntry } from "./components/ui/ContextMenu";
+import {
+  Download,
+  Upload,
+  Trash2,
+  FolderPlus,
+  RefreshCw,
+} from "lucide-react";
 import { deleteFiles, createFolder } from "./lib/commands";
 import { joinAndroidPath } from "./lib/fileUtils";
 import { humanizeError } from "./types/transfer";
@@ -38,6 +46,11 @@ export function App() {
     message: string;
     type: "success" | "error" | "info";
     action?: { label: string; onClick: () => void };
+  } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    items: ContextMenuEntry[];
   } | null>(null);
 
   // Drag state
@@ -230,6 +243,78 @@ export function App() {
     [deviceId, android, macos, transfer],
   );
 
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent, panelSource: FileSource, _target: FileEntry | null) => {
+      e.preventDefault();
+      setActivePanel(panelSource);
+
+      const panel = panelSource === "android" ? android : macos;
+      const hasSelection = panel.selectedFiles.length > 0;
+      const isAndroid = panelSource === "android";
+      const canTransfer = isConnected && hasSelection;
+
+      const items: ContextMenuEntry[] = [];
+
+      if (isAndroid) {
+        items.push({
+          label: `Pull to Mac${hasSelection ? ` (${panel.selectedFiles.length})` : ""}`,
+          icon: <Download size={14} />,
+          disabled: !canTransfer,
+          onClick: handlePull,
+        });
+      } else {
+        items.push({
+          label: `Push to Android${hasSelection ? ` (${panel.selectedFiles.length})` : ""}`,
+          icon: <Upload size={14} />,
+          disabled: !canTransfer,
+          onClick: handlePush,
+        });
+      }
+
+      if (isAndroid) {
+        items.push(
+          { separator: true },
+          {
+            label: "New Folder",
+            icon: <FolderPlus size={14} />,
+            disabled: !isConnected,
+            onClick: handleNewFolder,
+          },
+          {
+            label: "Delete",
+            icon: <Trash2 size={14} />,
+            shortcut: "⌫",
+            disabled: !hasSelection || !isConnected,
+            destructive: true,
+            onClick: handleDelete,
+          },
+        );
+      }
+
+      items.push(
+        { separator: true },
+        {
+          label: "Refresh",
+          icon: <RefreshCw size={14} />,
+          shortcut: "⌘R",
+          onClick: handleRefresh,
+        },
+      );
+
+      setContextMenu({ x: e.clientX, y: e.clientY, items });
+    },
+    [
+      android,
+      macos,
+      isConnected,
+      handlePull,
+      handlePush,
+      handleDelete,
+      handleNewFolder,
+      handleRefresh,
+    ],
+  );
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onSelectAll: activeFs.selectAll,
@@ -315,6 +400,7 @@ export function App() {
               onDragStart={handleDragStart}
               onDrop={handleDrop}
               dragOver={false}
+              onContextMenu={handleContextMenu}
             />
           ) : (
             <DeviceGuide
@@ -357,6 +443,7 @@ export function App() {
             onDragStart={handleDragStart}
             onDrop={handleDrop}
             dragOver={false}
+            onContextMenu={handleContextMenu}
           />
         </div>
       </div>
@@ -381,6 +468,16 @@ export function App() {
           confirmLabel={confirmDialog.confirmLabel}
           onConfirm={confirmDialog.onConfirm}
           onCancel={() => setConfirmDialog(null)}
+        />
+      )}
+
+      {/* Context menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onClose={() => setContextMenu(null)}
         />
       )}
 
