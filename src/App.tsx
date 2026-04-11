@@ -124,28 +124,43 @@ export function App() {
     [showToast],
   );
 
-  // Toolbar handlers
-  const handlePull = useCallback(async () => {
-    if (!deviceId || android.selectedFiles.length === 0) return;
-    const paths = android.selectedFiles.map((f) =>
-      joinAndroidPath(android.currentPath, f.name),
-    );
-    const results = await transfer.pull(deviceId, paths, macos.currentPath, () => {
-      macos.fetchFiles(macos.currentPath);
-    });
-    reportTransferResults("pull", results);
-  }, [deviceId, android, macos, transfer, reportTransferResults]);
+  // Primitive actions — accept explicit files to avoid stale selection state
+  const doPull = useCallback(
+    async (files: FileEntry[]) => {
+      if (!deviceId || files.length === 0) return;
+      const paths = files.map((f) => joinAndroidPath(android.currentPath, f.name));
+      const results = await transfer.pull(deviceId, paths, macos.currentPath, () => {
+        macos.fetchFiles(macos.currentPath);
+      });
+      reportTransferResults("pull", results);
+    },
+    [deviceId, android.currentPath, macos, transfer, reportTransferResults],
+  );
 
-  const handlePush = useCallback(async () => {
-    if (!deviceId || macos.selectedFiles.length === 0) return;
-    const paths = macos.selectedFiles.map((f) =>
-      `${macos.currentPath.replace(/\/$/, "")}/${f.name}`,
-    );
-    const results = await transfer.push(deviceId, paths, android.currentPath, () => {
-      android.fetchFiles(android.currentPath);
-    });
-    reportTransferResults("push", results);
-  }, [deviceId, android, macos, transfer, reportTransferResults]);
+  const doPush = useCallback(
+    async (files: FileEntry[]) => {
+      if (!deviceId || files.length === 0) return;
+      const paths = files.map(
+        (f) => `${macos.currentPath.replace(/\/$/, "")}/${f.name}`,
+      );
+      const results = await transfer.push(deviceId, paths, android.currentPath, () => {
+        android.fetchFiles(android.currentPath);
+      });
+      reportTransferResults("push", results);
+    },
+    [deviceId, macos.currentPath, android, transfer, reportTransferResults],
+  );
+
+  // Toolbar handlers — use current selection
+  const handlePull = useCallback(
+    () => doPull(android.selectedFiles),
+    [doPull, android.selectedFiles],
+  );
+
+  const handlePush = useCallback(
+    () => doPush(macos.selectedFiles),
+    [doPush, macos.selectedFiles],
+  );
 
   const handleRetry = useCallback(
     (itemId: string) => {
@@ -157,40 +172,48 @@ export function App() {
     [transfer, android, macos],
   );
 
-  const handleDelete = useCallback(() => {
-    if (activeFs.selectedFiles.length === 0) return;
-    const names = activeFs.selectedFiles.map((f) => f.name);
-    setConfirmDialog({
-      title: "Delete files",
-      message: `Delete ${names.length} item(s)?\n${names.slice(0, 5).join(", ")}${names.length > 5 ? "..." : ""}`,
-      destructive: true,
-      confirmLabel: "Delete",
-      onConfirm: async () => {
-        setConfirmDialog(null);
-        if (activePanel !== "android" || !deviceId) {
-          showToast("Delete is only supported on Android side", "info");
-          return;
-        }
-        const failed: string[] = [];
-        for (const file of activeFs.selectedFiles) {
-          try {
-            await deleteFiles(deviceId, joinAndroidPath(android.currentPath, file.name));
-          } catch (e) {
-            failed.push(`${file.name}: ${String(e)}`);
+  const doDelete = useCallback(
+    (files: FileEntry[], panelSource: FileSource) => {
+      if (files.length === 0) return;
+      const names = files.map((f) => f.name);
+      setConfirmDialog({
+        title: "Delete files",
+        message: `Delete ${names.length} item(s)?\n${names.slice(0, 5).join(", ")}${names.length > 5 ? "..." : ""}`,
+        destructive: true,
+        confirmLabel: "Delete",
+        onConfirm: async () => {
+          setConfirmDialog(null);
+          if (panelSource !== "android" || !deviceId) {
+            showToast("Delete is only supported on Android side", "info");
+            return;
           }
-        }
-        android.fetchFiles(android.currentPath);
-        if (failed.length === 0) {
-          showToast(`Deleted ${names.length} item(s)`, "success");
-        } else {
-          showToast(
-            `${failed.length}/${names.length} failed to delete`,
-            "error",
-          );
-        }
-      },
-    });
-  }, [activeFs, activePanel, deviceId, android, showToast]);
+          const failed: string[] = [];
+          for (const file of files) {
+            try {
+              await deleteFiles(deviceId, joinAndroidPath(android.currentPath, file.name));
+            } catch (e) {
+              failed.push(`${file.name}: ${String(e)}`);
+            }
+          }
+          android.fetchFiles(android.currentPath);
+          if (failed.length === 0) {
+            showToast(`Deleted ${names.length} item(s)`, "success");
+          } else {
+            showToast(
+              `${failed.length}/${names.length} failed to delete`,
+              "error",
+            );
+          }
+        },
+      });
+    },
+    [deviceId, android, showToast],
+  );
+
+  const handleDelete = useCallback(
+    () => doDelete(activeFs.selectedFiles, activePanel),
+    [doDelete, activeFs.selectedFiles, activePanel],
+  );
 
   const handleNewFolder = useCallback(() => {
     const name = prompt("Folder name:");
@@ -244,30 +267,41 @@ export function App() {
   );
 
   const handleContextMenu = useCallback(
-    (e: React.MouseEvent, panelSource: FileSource, _target: FileEntry | null) => {
+    (e: React.MouseEvent, panelSource: FileSource, target: FileEntry | null) => {
       e.preventDefault();
       setActivePanel(panelSource);
 
       const panel = panelSource === "android" ? android : macos;
-      const hasSelection = panel.selectedFiles.length > 0;
+
+      // Determine which files this menu should act on.
+      // If right-clicked a file that's part of the existing selection → use whole selection.
+      // If right-clicked a file that's NOT in selection → act only on that file.
+      // If right-clicked empty area → act on current selection.
+      const contextFiles: FileEntry[] = target
+        ? panel.selected.has(target.name) && panel.selectedFiles.length > 0
+          ? panel.selectedFiles
+          : [target]
+        : panel.selectedFiles;
+
+      const hasFiles = contextFiles.length > 0;
       const isAndroid = panelSource === "android";
-      const canTransfer = isConnected && hasSelection;
+      const canTransfer = isConnected && hasFiles;
 
       const items: ContextMenuEntry[] = [];
 
       if (isAndroid) {
         items.push({
-          label: `Pull to Mac${hasSelection ? ` (${panel.selectedFiles.length})` : ""}`,
+          label: `Pull to Mac${hasFiles ? ` (${contextFiles.length})` : ""}`,
           icon: <Download size={14} />,
           disabled: !canTransfer,
-          onClick: handlePull,
+          onClick: () => doPull(contextFiles),
         });
       } else {
         items.push({
-          label: `Push to Android${hasSelection ? ` (${panel.selectedFiles.length})` : ""}`,
+          label: `Push to Android${hasFiles ? ` (${contextFiles.length})` : ""}`,
           icon: <Upload size={14} />,
           disabled: !canTransfer,
-          onClick: handlePush,
+          onClick: () => doPush(contextFiles),
         });
       }
 
@@ -284,9 +318,9 @@ export function App() {
             label: "Delete",
             icon: <Trash2 size={14} />,
             shortcut: "⌫",
-            disabled: !hasSelection || !isConnected,
+            disabled: !hasFiles || !isConnected,
             destructive: true,
-            onClick: handleDelete,
+            onClick: () => doDelete(contextFiles, panelSource),
           },
         );
       }
@@ -307,9 +341,9 @@ export function App() {
       android,
       macos,
       isConnected,
-      handlePull,
-      handlePush,
-      handleDelete,
+      doPull,
+      doPush,
+      doDelete,
       handleNewFolder,
       handleRefresh,
     ],
