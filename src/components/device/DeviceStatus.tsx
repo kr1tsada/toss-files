@@ -29,18 +29,18 @@ export function DeviceStatus({
   };
 
   return (
-    <div className="flex items-center justify-between border-b border-neutral-800 px-4 py-2">
+    <div className="flex items-center justify-between border-b border-edge px-4 py-2">
       <div className="flex items-center gap-3">
-        <Smartphone size={16} className="text-neutral-400" />
+        <Smartphone size={16} className="text-fg-3" />
         {devices.length === 0 ? (
-          <span className="text-sm text-neutral-500">No device connected</span>
+          <span className="text-sm text-fg-4">No device connected</span>
         ) : devices.length === 1 ? (
           <div className="flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${stateColor(selectedDevice?.state ?? "")}`} />
-            <span className="text-sm text-neutral-200">
+            <span className="text-sm text-fg-2">
               {selectedDevice?.model || selectedDevice?.id}
             </span>
-            <span className="text-xs text-neutral-500">
+            <span className="text-xs text-fg-4">
               ({stateLabel(selectedDevice?.state ?? "")})
             </span>
           </div>
@@ -51,7 +51,7 @@ export function DeviceStatus({
               const d = devices.find((d) => d.id === e.target.value);
               if (d) onSelect(d);
             }}
-            className="rounded bg-neutral-800 px-2 py-1 text-sm text-neutral-200 outline-none"
+            className="rounded bg-surface-2 px-2 py-1 text-sm text-fg-2 outline-none"
           >
             {devices.map((d) => (
               <option key={d.id} value={d.id}>
@@ -64,7 +64,7 @@ export function DeviceStatus({
       <button
         onClick={onRefresh}
         disabled={loading}
-        className="rounded p-1.5 text-neutral-400 hover:bg-neutral-800 hover:text-white disabled:opacity-50"
+        className="rounded p-1.5 text-fg-3 hover:bg-surface-2 hover:text-fg disabled:opacity-50"
         title="Refresh devices"
       >
         <RefreshCw size={14} className={loading ? "animate-spin" : ""} />

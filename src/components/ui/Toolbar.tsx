@@ -33,8 +33,8 @@ function ToolbarButton({ icon, label, onClick, disabled, danger }: ToolbarButton
       title={label}
       className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${
         danger
-          ? "text-red-400 hover:bg-red-900/30 hover:text-red-300"
-          : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
+          ? "text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/30 dark:hover:text-red-300"
+          : "text-fg-3 hover:bg-surface-2 hover:text-fg"
       }`}
     >
       {icon}
@@ -54,7 +54,7 @@ export function Toolbar({
   isTransferring,
 }: ToolbarProps) {
   return (
-    <div className="flex items-center gap-1 border-b border-neutral-800 px-3 py-1.5">
+    <div className="flex items-center gap-1 border-b border-edge px-3 py-1.5">
       <ToolbarButton
         icon={<ArrowDownToLine size={14} />}
         label="Pull to Mac"
@@ -67,7 +67,7 @@ export function Toolbar({
         onClick={onPush}
         disabled={!hasDevice || !hasSelection || isTransferring}
       />
-      <div className="mx-1 h-4 w-px bg-neutral-800" />
+      <div className="mx-1 h-4 w-px bg-edge" />
       <ToolbarButton
         icon={<Trash2 size={14} />}
         label="Delete"

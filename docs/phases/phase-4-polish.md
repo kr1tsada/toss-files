@@ -18,9 +18,9 @@ Error handling, dark/light mode, keyboard shortcuts, app packaging
 - [x] Confirmation dialog ก่อนลบ file
 
 ### 4.2 Theme
-- [ ] Dark/Light mode ตาม macOS system preference
-- [ ] `prefers-color-scheme` media query
-- [ ] Tailwind dark: variant
+- [x] Dark/Light mode ตาม macOS system preference
+- [x] `prefers-color-scheme` media query
+- [x] Tailwind dark: variant
 
 ### 4.3 Keyboard Shortcuts
 - [ ] `Cmd+C` — copy (pull/push depending on active panel)

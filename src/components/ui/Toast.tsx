@@ -23,9 +23,9 @@ export function Toast({
   }, [duration, onClose]);
 
   const colors = {
-    success: "bg-green-900 text-green-100 border-green-700",
-    error: "bg-red-900 text-red-100 border-red-700",
-    info: "bg-neutral-800 text-neutral-100 border-neutral-700",
+    success: "bg-green-50 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-100 dark:border-green-700",
+    error: "bg-red-50 text-red-800 border-red-200 dark:bg-red-900 dark:text-red-100 dark:border-red-700",
+    info: "bg-surface-1 text-fg border-edge-2",
   };
 
   return (
@@ -36,7 +36,7 @@ export function Toast({
       {action && (
         <button
           onClick={action.onClick}
-          className="rounded bg-white/10 px-2 py-0.5 text-xs font-medium hover:bg-white/20"
+          className="rounded bg-black/10 px-2 py-0.5 text-xs font-medium hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20"
         >
           {action.label}
         </button>

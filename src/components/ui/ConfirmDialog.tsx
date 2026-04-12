@@ -43,21 +43,21 @@ export function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="w-80 rounded-lg bg-neutral-900 p-4 shadow-xl"
+        className="w-80 rounded-lg bg-surface-1 p-4 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-sm font-medium text-white">{title}</h3>
-        <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-400">{message}</p>
+        <h3 className="text-sm font-medium text-fg">{title}</h3>
+        <p className="mt-2 whitespace-pre-wrap text-sm text-fg-3">{message}</p>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="rounded px-3 py-1.5 text-sm text-neutral-400 hover:bg-neutral-800"
+            className="rounded px-3 py-1.5 text-sm text-fg-3 hover:bg-surface-2"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`rounded px-3 py-1.5 text-sm text-white ${confirmClass}`}
+            className={`rounded px-3 py-1.5 text-sm text-white dark:text-white ${confirmClass}`}
           >
             {confirmLabel}
           </button>

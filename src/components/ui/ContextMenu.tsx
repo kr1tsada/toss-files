@@ -57,20 +57,20 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
   return (
     <div
       ref={ref}
-      className="fixed z-50 min-w-[11rem] rounded-md border border-neutral-700 bg-neutral-900 py-1 text-sm shadow-2xl"
+      className="fixed z-50 min-w-[11rem] rounded-md border border-edge-2 bg-surface-1 py-1 text-sm shadow-2xl"
       style={{ left: pos.x, top: pos.y }}
       onContextMenu={(e) => e.preventDefault()}
     >
       {items.map((item, i) => {
         if ("separator" in item && item.separator) {
-          return <div key={i} className="my-1 h-px bg-neutral-800" />;
+          return <div key={i} className="my-1 h-px bg-edge" />;
         }
         const entry = item as ContextMenuItem;
         const textClass = entry.disabled
-          ? "text-neutral-600 cursor-default"
+          ? "text-fg-5 cursor-default"
           : entry.destructive
-            ? "text-red-400 hover:bg-red-900/40 hover:text-red-300"
-            : "text-neutral-200 hover:bg-neutral-800 hover:text-white";
+            ? "text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/40 dark:hover:text-red-300"
+            : "text-fg-2 hover:bg-surface-2 hover:text-fg";
         return (
           <button
             key={i}
@@ -85,7 +85,7 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
             {entry.icon && <span className="shrink-0">{entry.icon}</span>}
             <span className="flex-1">{entry.label}</span>
             {entry.shortcut && (
-              <span className="shrink-0 text-xs text-neutral-500">{entry.shortcut}</span>
+              <span className="shrink-0 text-xs text-fg-4">{entry.shortcut}</span>
             )}
           </button>
         );

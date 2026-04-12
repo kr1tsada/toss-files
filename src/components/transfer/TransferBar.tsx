@@ -15,38 +15,38 @@ export function TransferBar({ activeTransfer, onCancel }: TransferBarProps) {
   const dirLabel = activeTransfer.direction === "pull" ? "Pulling" : "Pushing";
 
   return (
-    <div className="border-t border-neutral-800 px-4 py-2">
+    <div className="border-t border-edge px-4 py-2">
       <div className="flex items-center gap-3 text-xs">
-        <span className="text-neutral-400">{dirLabel}:</span>
-        <span className="min-w-0 flex-1 truncate text-neutral-200">
+        <span className="text-fg-3">{dirLabel}:</span>
+        <span className="min-w-0 flex-1 truncate text-fg-2">
           {activeTransfer.fileName}
         </span>
         {progress && (
           <>
-            <span className="shrink-0 text-neutral-400">
+            <span className="shrink-0 text-fg-3">
               {formatFileSize(progress.bytes_transferred)} / {formatFileSize(progress.total_bytes)}
             </span>
             {progress.speed_bps > 0 && (
-              <span className="shrink-0 text-neutral-500">
+              <span className="shrink-0 text-fg-4">
                 {formatSpeed(progress.speed_bps)}
               </span>
             )}
           </>
         )}
-        <span className="shrink-0 font-medium text-blue-400">
+        <span className="shrink-0 font-medium text-accent-text">
           {Math.round(percentage)}%
         </span>
         {onCancel && (
           <button
             onClick={onCancel}
-            className="shrink-0 rounded p-0.5 text-neutral-500 hover:bg-neutral-800 hover:text-red-400"
+            className="shrink-0 rounded p-0.5 text-fg-4 hover:bg-surface-2 hover:text-red-500 dark:hover:text-red-400"
             title="Cancel transfer"
           >
             <X size={14} />
           </button>
         )}
       </div>
-      <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-neutral-800">
+      <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-surface-2">
         <div
           className="h-full rounded-full bg-blue-500 transition-all duration-300"
           style={{ width: `${percentage}%` }}

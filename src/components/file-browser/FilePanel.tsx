@@ -121,7 +121,7 @@ export function FilePanel({
 
   const sortArrow = (key: string) => {
     if (sortKey !== key) return null;
-    return <span className="text-blue-400">{sortDir === "asc" ? " ↑" : " ↓"}</span>;
+    return <span className="text-accent-text">{sortDir === "asc" ? " ↑" : " ↓"}</span>;
   };
 
   const showDragOverlay = isDragTarget || dragOver;
@@ -142,13 +142,13 @@ export function FilePanel({
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-1.5">
-        <span className="text-xs font-medium uppercase tracking-wider text-neutral-500">
+      <div className="flex items-center justify-between border-b border-edge px-3 py-1.5">
+        <span className="text-xs font-medium uppercase tracking-wider text-fg-4">
           {title}
         </span>
         <button
           onClick={onNavigateUp}
-          className="rounded p-1 text-neutral-500 hover:bg-neutral-800 hover:text-white"
+          className="rounded p-1 text-fg-4 hover:bg-surface-2 hover:text-fg"
           title="Go up"
         >
           <ArrowUp size={13} />
@@ -159,14 +159,14 @@ export function FilePanel({
       <Breadcrumb path={currentPath} onNavigate={onNavigateTo} />
 
       {/* Sort header */}
-      <div className="flex items-center border-b border-neutral-800/50 px-3 py-1 text-[11px] text-neutral-600">
-        <button className="flex-1 text-left hover:text-neutral-400" onClick={() => onSort("name")}>
+      <div className="flex items-center border-b border-edge/50 px-3 py-1 text-[11px] text-fg-5">
+        <button className="flex-1 text-left hover:text-fg-3" onClick={() => onSort("name")}>
           Name{sortArrow("name")}
         </button>
-        <button className="w-28 text-right hover:text-neutral-400" onClick={() => onSort("modified")}>
+        <button className="w-28 text-right hover:text-fg-3" onClick={() => onSort("modified")}>
           Modified{sortArrow("modified")}
         </button>
-        <button className="w-16 text-right hover:text-neutral-400" onClick={() => onSort("size")}>
+        <button className="w-16 text-right hover:text-fg-3" onClick={() => onSort("size")}>
           Size{sortArrow("size")}
         </button>
       </div>
@@ -174,7 +174,7 @@ export function FilePanel({
       {/* File list */}
       {loading ? (
         <div className="flex flex-1 items-center justify-center">
-          <Loader2 size={20} className="animate-spin text-neutral-600" />
+          <Loader2 size={20} className="animate-spin text-fg-5" />
         </div>
       ) : error ? (
         <EmptyState message={error} />

@@ -379,10 +379,10 @@ export function App() {
   }, []);
 
   return (
-    <div className="flex h-screen flex-col bg-neutral-950 text-white">
+    <div className="flex h-screen flex-col bg-surface-0 text-fg">
       {/* Title bar area */}
-      <div className="flex items-center justify-center border-b border-neutral-800 py-1.5" data-tauri-drag-region>
-        <span className="text-xs font-medium text-neutral-500">{APP_NAME}</span>
+      <div className="flex items-center justify-center border-b border-edge py-1.5" data-tauri-drag-region>
+        <span className="text-xs font-medium text-fg-4">{APP_NAME}</span>
       </div>
 
       {/* Device status */}
@@ -449,7 +449,7 @@ export function App() {
 
         {/* Resizable divider */}
         <div
-          className="w-1 cursor-col-resize bg-neutral-800 hover:bg-blue-600 active:bg-blue-500"
+          className="w-1 cursor-col-resize bg-edge hover:bg-blue-600 active:bg-blue-500"
           onMouseDown={handleDividerMouseDown}
         />
 
