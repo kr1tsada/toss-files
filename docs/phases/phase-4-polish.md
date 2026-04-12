@@ -11,11 +11,11 @@ Error handling, dark/light mode, keyboard shortcuts, app packaging
 ## Tasks
 
 ### 4.1 Error Handling & UX
-- [ ] Device disconnected mid-transfer → แสดง error + retry option
-- [ ] Permission denied → แจ้งเตือนให้ enable USB debugging
-- [ ] File not found / path invalid → toast notification
-- [ ] Transfer failed → error detail + retry
-- [ ] Confirmation dialog ก่อนลบ file
+- [x] Device disconnected mid-transfer → แสดง error + retry option
+- [x] Permission denied → แจ้งเตือนให้ enable USB debugging
+- [x] File not found / path invalid → toast notification
+- [x] Transfer failed → error detail + retry
+- [x] Confirmation dialog ก่อนลบ file
 
 ### 4.2 Theme
 - [ ] Dark/Light mode ตาม macOS system preference
